@@ -1,0 +1,23 @@
+{
+  "name": "jacksclub",
+  "module": "src/api/server.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "bun run src/api/server.ts",
+    "test": "bun test",
+    "setup-db": "bun run src/db/setup.ts",
+    "start-db": "docker run -d --name dynamodb-local -p 8000:8000 amazon/dynamodb-local -jar DynamoDBLocal.jar -sharedDb -inMemory"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.490.0",
+    "@aws-sdk/lib-dynamodb": "^3.490.0",
+    "hono": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
