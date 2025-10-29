@@ -40,7 +40,7 @@ app.onError((error, c) => {
                 code: error.code,
                 message: error.message,
             },
-        }, statusCode);
+        }, statusCode as any);
     }
 
     // Handle AWS DynamoDB errors that might wrap our custom errors
@@ -233,8 +233,8 @@ app.get('/api/db-data', async (c) => {
 
         // Sort data
         balances.sort((a, b) => (a.userId || '').localeCompare(b.userId || ''));
-        transactions.sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0));
-        idempotencyRecords.sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0));
+        transactions.sort((a, b) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime());
+        idempotencyRecords.sort((a, b) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime());
 
         return c.json({
             balances,
@@ -246,7 +246,7 @@ app.get('/api/db-data', async (c) => {
         console.error('Error fetching database data:', error);
         return c.json({
             error: 'Failed to fetch database data',
-            details: error.message
+            details: error instanceof Error ? error.message : 'Unknown error'
         }, 500);
     }
 });

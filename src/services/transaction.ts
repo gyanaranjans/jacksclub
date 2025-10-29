@@ -18,27 +18,27 @@ import {
 export async function transact(request: TransactRequest): Promise<TransactionResponse> {
     const { idempotentKey, userId, amount: amountStr, type } = request;
 
-  // Input validation
-  if (!idempotentKey || typeof idempotentKey !== 'string' || idempotentKey.trim() === '') {
-    throw new BalanceError('Invalid idempotentKey: must be a non-empty string', 'INVALID_IDEMPOTENT_KEY');
-  }
+    // Input validation
+    if (!idempotentKey || typeof idempotentKey !== 'string' || idempotentKey.trim() === '') {
+        throw new BalanceError('Invalid idempotentKey: must be a non-empty string', 'INVALID_IDEMPOTENT_KEY');
+    }
 
-  if (!userId || typeof userId !== 'string' || userId.trim() === '') {
-    throw new BalanceError('Invalid userId: must be a non-empty string', 'INVALID_USER_ID');
-  }
+    if (!userId || typeof userId !== 'string' || userId.trim() === '') {
+        throw new BalanceError('Invalid userId: must be a non-empty string', 'INVALID_USER_ID');
+    }
 
-  if (!amountStr || typeof amountStr !== 'string' || amountStr.trim() === '') {
-    throw new InvalidAmountError(amountStr || '');
-  }
+    if (!amountStr || typeof amountStr !== 'string' || amountStr.trim() === '') {
+        throw new InvalidAmountError(amountStr || '');
+    }
 
-  const amount = parseFloat(amountStr);
-  if (isNaN(amount) || amount <= 0) {
-    throw new InvalidAmountError(amountStr);
-  }
+    const amount = parseFloat(amountStr);
+    if (isNaN(amount) || amount <= 0) {
+        throw new InvalidAmountError(amountStr);
+    }
 
-  if (!['credit', 'debit'].includes(type)) {
-    throw new BalanceError('Invalid type: must be either "credit" or "debit"', 'INVALID_TRANSACTION_TYPE');
-  }
+    if (!['credit', 'debit'].includes(type)) {
+        throw new BalanceError('Invalid type: must be either "credit" or "debit"', 'INVALID_TRANSACTION_TYPE');
+    }
 
     try {
         // Step 1: Check idempotency - has this transaction already been processed?
@@ -160,6 +160,10 @@ export async function transact(request: TransactRequest): Promise<TransactionRes
         } catch (error) {
             if (error instanceof ConditionalCheckFailedException) {
                 // Race condition - balance was modified by another transaction
+                throw new RaceConditionError(userId);
+            }
+            if (error && typeof error === 'object' && 'name' in error && error.name === 'TransactionCanceledException') {
+                // Transaction was cancelled, likely due to race condition
                 throw new RaceConditionError(userId);
             }
             throw error;

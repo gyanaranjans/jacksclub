@@ -124,7 +124,7 @@ describe('getCurrentBalance', () => {
     describe('input validation', () => {
         it('should throw error for empty userId', async () => {
             await expect(getCurrentBalance('')).rejects.toThrow(BalanceError);
-            expect(() => getCurrentBalance('')).rejects.toThrow('Invalid userId: must be a non-empty string');
+            await expect(getCurrentBalance('')).rejects.toThrow('Invalid userId: must be a non-empty string');
         });
 
         it('should throw error for whitespace-only userId', async () => {

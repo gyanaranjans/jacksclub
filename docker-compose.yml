@@ -19,3 +19,4 @@ volumes:
 networks:
   dynamodb-network:
     driver: bridge
+
